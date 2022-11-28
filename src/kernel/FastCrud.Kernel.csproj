@@ -8,9 +8,14 @@
 
     <PropertyGroup>
         <PackageId>FastCrud.Kernel</PackageId>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Muntadhar Haydar</Authors>
         <Company>RnkOps</Company>
+        <PackageProjectUrl>https://github.com/rnkops/FastCrud</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/rnkops/FastCrud</RepositoryUrl>
+        <PackageTags>crud api</PackageTags>
+        <Copywrite>Copyright (c) Muntadhar Haydar 2022</Copywrite>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
 </Project>
