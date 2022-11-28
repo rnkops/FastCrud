@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCrud.Kernel", "kernel\FastCrud.Kernel.csproj", "{D6C22CCC-BA11-4257-9865-DD1EA3AD1288}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCrud.Persistence.EFCore", "efcore\FastCrud.Persistence.EFCore.csproj", "{398702D5-C6C1-4401-975E-5B871E48D3BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6C22CCC-BA11-4257-9865-DD1EA3AD1288}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6C22CCC-BA11-4257-9865-DD1EA3AD1288}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6C22CCC-BA11-4257-9865-DD1EA3AD1288}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6C22CCC-BA11-4257-9865-DD1EA3AD1288}.Release|Any CPU.Build.0 = Release|Any CPU
+		{398702D5-C6C1-4401-975E-5B871E48D3BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{398702D5-C6C1-4401-975E-5B871E48D3BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{398702D5-C6C1-4401-975E-5B871E48D3BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{398702D5-C6C1-4401-975E-5B871E48D3BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
