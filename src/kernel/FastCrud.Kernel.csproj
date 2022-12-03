@@ -8,7 +8,7 @@
 
     <PropertyGroup>
         <PackageId>FastCrud.Kernel</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.1.0</Version>
         <Authors>Muntadhar Haydar</Authors>
         <Company>RnkOps</Company>
         <PackageProjectUrl>https://github.com/rnkops/FastCrud</PackageProjectUrl>

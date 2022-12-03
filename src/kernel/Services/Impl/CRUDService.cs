@@ -259,4 +259,40 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
 
     public virtual Task RemoveAsync(IEnumerable<TEntity> entities)
         => ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entities);
+
+    public virtual void Remove<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    {
+        var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        if (entity != null)
+        {
+            ((IRDRepository<TEntity, TId>)Repository).Remove(entity);
+        }
+    }
+
+    public virtual void Delete<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    {
+        var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        if (entity is null)
+            return;
+        request.DeleteEntity(entity);
+        Delete(entity);
+    }
+
+    public virtual async Task RemoveAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    {
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        if (entity != null)
+        {
+            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+        }
+    }
+
+    public virtual async Task DeleteAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    {
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        if (entity is null)
+            return;
+        request.DeleteEntity(entity);
+        await DeleteAsync(entity);
+    }
 }
