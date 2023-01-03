@@ -16,7 +16,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => ((ICRepository<TEntity, TId>)Repository).SaveChangesAsync(cancellationToken);
 
-    public TResponse? Update<TResponse, TRequest>(TRequest request)
+    public virtual TResponse? Update<TResponse, TRequest>(TRequest request)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
@@ -30,7 +30,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return res;
     }
 
-    public TResponse[]? Update<TResponse, TRequest>(IEnumerable<TRequest> request)
+    public virtual TResponse[]? Update<TResponse, TRequest>(IEnumerable<TRequest> request)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
@@ -51,7 +51,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return res;
     }
 
-    public TEntity? Update<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual TEntity? Update<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var entity = Repository.Find(request.Id);
         if (entity is null)
@@ -61,7 +61,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return entity;
     }
 
-    public TEntity[]? Update<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual TEntity[]? Update<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
@@ -75,13 +75,13 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return entities;
     }
 
-    public void Update(TEntity entity)
+    public virtual void Update(TEntity entity)
         => ((IRURepository<TEntity, TId>)Repository).Update(entity);
 
-    public void Update(IEnumerable<TEntity> entities)
+    public virtual void Update(IEnumerable<TEntity> entities)
         => ((IRURepository<TEntity, TId>)Repository).Update(entities);
 
-    public async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request)
+    public virtual async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
@@ -95,7 +95,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return res;
     }
 
-    public async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request)
+    public virtual async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
@@ -116,7 +116,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return res;
     }
 
-    public async Task<TEntity?> UpdateAsync<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var entity = await Repository.FindAsync(request.Id);
         if (entity is null)
@@ -126,7 +126,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return entity;
     }
 
-    public async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length);
@@ -142,9 +142,9 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEnt
         return entities;
     }
 
-    public Task UpdateAsync(TEntity entity)
+    public virtual Task UpdateAsync(TEntity entity)
         => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
 
-    public Task UpdateAsync(IEnumerable<TEntity> entities)
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entities)
         => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities);
 }

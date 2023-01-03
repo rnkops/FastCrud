@@ -10,7 +10,8 @@ public abstract class BaseGetQuery<TEntity, TId> where TEntity : class, IEntity<
     public DateTimeOffset? CreatedAtLTE { get; set; }
     public long? SerialGTE { get; set; }
     public long? SerialLTE { get; set; }
-    public int Limit { get; set; }
+    public int Limit { get; set; } = 25;
+    public string? Query { get; set; }
     public string? Order { get; set; }
 
     public virtual IQueryable<TEntity> GetFiltered(IQueryable<TEntity> queryable)
