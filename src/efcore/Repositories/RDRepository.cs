@@ -16,13 +16,13 @@ public class RDRepository<TEntity, TId> : RRepository<TEntity, TId>, IRDReposito
     public virtual void Remove(IEnumerable<TEntity> entities)
         => Context.Set<TEntity>().RemoveRange(entities);
 
-    public virtual Task RemoveAsync(TEntity entity)
+    public virtual Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().Remove(entity);
         return Task.CompletedTask;
     }
 
-    public virtual Task RemoveAsync(IEnumerable<TEntity> entities)
+    public virtual Task RemoveAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().RemoveRange(entities);
         return Task.CompletedTask;
@@ -34,13 +34,13 @@ public class RDRepository<TEntity, TId> : RRepository<TEntity, TId>, IRDReposito
     public virtual void Update(IEnumerable<TEntity> entities)
         => Context.Set<TEntity>().UpdateRange(entities);
 
-    public virtual Task UpdateAsync(TEntity entity)
+    public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().Update(entity);
         return Task.CompletedTask;
     }
 
-    public virtual Task UpdateAsync(IEnumerable<TEntity> entities)
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().UpdateRange(entities);
         return Task.CompletedTask;

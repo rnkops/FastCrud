@@ -16,13 +16,13 @@ public class RURepository<TEntity, TId> : RRepository<TEntity, TId>, IRUReposito
     public virtual void Update(IEnumerable<TEntity> entities)
         => Context.Set<TEntity>().UpdateRange(entities);
 
-    public virtual Task UpdateAsync(TEntity entity)
+    public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().Update(entity);
         return Task.CompletedTask;
     }
 
-    public virtual Task UpdateAsync(IEnumerable<TEntity> entities)
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().UpdateRange(entities);
         return Task.CompletedTask;

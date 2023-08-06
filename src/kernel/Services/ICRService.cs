@@ -1,4 +1,3 @@
-using FastCrud.Kernel.Dtos;
 using FastCrud.Kernel.Entities;
 
 namespace FastCrud.Kernel.Services;

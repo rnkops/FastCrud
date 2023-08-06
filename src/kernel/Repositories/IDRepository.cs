@@ -6,6 +6,6 @@ public interface IDRepository<TEntity, TId> : IURepository<TEntity, TId> where T
 {
     void Remove(TEntity entity);
     void Remove(IEnumerable<TEntity> entities);
-    Task RemoveAsync(TEntity entity);
-    Task RemoveAsync(IEnumerable<TEntity> entities);
+    Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task RemoveAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 }

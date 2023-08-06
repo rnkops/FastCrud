@@ -4,7 +4,7 @@ using FastCrud.Kernel.Repositories;
 
 namespace FastCrud.Kernel.Services;
 
-public class RDService<TEntity, TId> : RService<TEntity, TId>, IRDService<TEntity, TId> where TEntity : class, IDeletableEntity<TId>
+public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity, TId>, IDService<TEntity, TId>, IRDService<TEntity, TId> where TEntity : class, IDeletableEntity<TId>
 {
     public RDService(IRDRepository<TEntity, TId> repository) : base(repository)
     {
@@ -45,39 +45,39 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRDService<TEntit
         ((IRDRepository<TEntity, TId>)Repository).Update(entities);
     }
 
-    public virtual async Task DeleteAsync(TId id)
+    public virtual async Task DeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
             entity.DeletedAt = DateTimeOffset.UtcNow;
-            await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entity);
+            await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task DeleteAsync(IEnumerable<TId> ids)
+    public virtual async Task DeleteAsync(IEnumerable<TId> ids, CancellationToken cancellationToken = default)
     {
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue, cancellationToken);
         foreach (var entity in entities)
         {
             entity.DeletedAt = DateTimeOffset.UtcNow;
         }
-        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entities);
+        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(TEntity entity)
+    public virtual async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         entity.DeletedAt = DateTimeOffset.UtcNow;
-        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(IEnumerable<TEntity> entities)
+    public virtual async Task DeleteAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         foreach (var entity in entities)
         {
             entity.DeletedAt = DateTimeOffset.UtcNow;
         }
-        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entities);
+        await ((IRDRepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
     }
 
     public virtual void Remove(TId id)
@@ -105,26 +105,26 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRDService<TEntit
         ((IRDRepository<TEntity, TId>)Repository).Remove(entities);
     }
 
-    public virtual async Task RemoveAsync(TId id)
+    public virtual async Task RemoveAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
-            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task RemoveAsync(IEnumerable<TId> ids)
+    public virtual async Task RemoveAsync(IEnumerable<TId> ids, CancellationToken cancellationToken = default)
     {
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue);
-        await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entities);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue, cancellationToken);
+        await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entities, cancellationToken);
     }
 
-    public virtual Task RemoveAsync(TEntity entity)
-        => ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+    public virtual Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default)
+        => ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
 
-    public virtual Task RemoveAsync(IEnumerable<TEntity> entities)
-        => ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entities);
+    public virtual Task RemoveAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        => ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entities, cancellationToken);
 
     public virtual void Remove<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
@@ -144,22 +144,22 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRDService<TEntit
         Delete(entity);
     }
 
-    public virtual async Task RemoveAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    public virtual async Task RemoveAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
-            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task DeleteAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    public virtual async Task DeleteAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity is null)
             return;
         request.DeleteEntity(entity);
-        await DeleteAsync(entity);
+        await DeleteAsync(entity, cancellationToken);
     }
 
     public virtual int SaveChanges()

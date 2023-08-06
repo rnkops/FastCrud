@@ -4,7 +4,7 @@ using FastCrud.Kernel.Repositories;
 
 namespace FastCrud.Kernel.Services;
 
-public class RUService<TEntity, TId> : RService<TEntity, TId>, IRUService<TEntity, TId> where TEntity : class, IEntity<TId>
+public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity, TId>, IUService<TEntity, TId>, IRUService<TEntity, TId> where TEntity : class, IEntity<TId>
 {
     public RUService(IRURepository<TEntity, TId> repository) : base(repository)
     {
@@ -81,26 +81,26 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRUService<TEntit
     public virtual void Update(IEnumerable<TEntity> entities)
         => ((IRURepository<TEntity, TId>)Repository).Update(entities);
 
-    public virtual async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request)
+    public virtual async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
-        var entity = await Repository.FindAsync(request.Id);
+        var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
         request.UpdateEntity(entity);
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         var res = new TResponse();
         res.Set(entity);
         return res;
     }
 
-    public virtual async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request)
+    public virtual async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
             return null;
         var res = new TResponse[entities.Length];
@@ -112,24 +112,24 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRUService<TEntit
             res[i] = new TResponse();
             res[i].Set(entities[i]);
         }
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate, cancellationToken);
         return res;
     }
 
-    public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
-        var entity = await Repository.FindAsync(request.Id);
+        var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
         request.UpdateEntity(entity);
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         return entity;
     }
 
-    public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
             return null;
         var toUpdate = new List<TEntity>();
@@ -138,13 +138,13 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRUService<TEntit
             request.First(x => x.Id!.Equals(entities[i].Id)).UpdateEntity(entities[i]);
             toUpdate.Add(entities[i]);
         }
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate, cancellationToken);
         return entities;
     }
 
-    public virtual Task UpdateAsync(TEntity entity)
-        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+    public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
 
-    public virtual Task UpdateAsync(IEnumerable<TEntity> entities)
-        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities);
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
 }

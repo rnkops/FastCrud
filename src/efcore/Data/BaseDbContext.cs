@@ -14,11 +14,6 @@ public abstract class BaseDbContext : DbContext
     {
     }
 
-    public virtual void ApplySchemaChanges()
-    {
-        Database.Migrate();
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -29,35 +24,24 @@ public abstract class BaseDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetCallingAssembly());
-        var stringProps = new List<IMutableProperty>();
-        var serialProps = new List<IMutableProperty>();
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var prop in entityType.GetProperties())
             {
                 if (prop.ClrType == typeof(string) && prop.GetMaxLength() == null)
                 {
-                    stringProps.Add(prop);
+                    prop.SetMaxLength(GetDefaultStringLength());
                 }
-                else if (prop.ClrType == typeof(int) && prop.Name == "Serial")
+                else if ((prop.ClrType == typeof(int) || prop.ClrType == typeof(long)) && prop.Name == "Serial")
                 {
-                    serialProps.Add(prop);
-                }
-                else if (prop.ClrType == typeof(long) && prop.Name == "Serial")
-                {
-                    serialProps.Add(prop);
+                    prop.ValueGenerated = ValueGenerated.OnAdd;
+                    prop.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+                    prop.DeclaringEntityType.AddIndex(prop);
                 }
             }
         }
-        foreach (var property in stringProps)
-        {
-            property.SetMaxLength(256);
-        }
-        foreach (var property in serialProps)
-        {
-            property.ValueGenerated = ValueGenerated.OnAdd;
-            property.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
-            property.DeclaringEntityType.AddIndex(property);
-        }
     }
+
+    protected virtual int GetDefaultStringLength()
+        => 256;
 }

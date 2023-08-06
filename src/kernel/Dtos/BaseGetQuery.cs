@@ -68,8 +68,11 @@ public abstract class BaseGetQuery<TEntity, TId> where TEntity : class, IEntity<
     }
 
     public virtual IQueryable<TEntity> GetSkipped(IQueryable<TEntity> queryable)
-        => queryable.Take(Limit > 0 && Limit < 101 ? Limit : 25);
+        => queryable.Take(GetTake());
 
     protected virtual IOrderedQueryable<TEntity>? InitialSort(IQueryable<TEntity> queryable)
         => null;
+
+    protected virtual int GetTake()
+        => Limit > 0 && Limit < 101 ? Limit : 25;
 }

@@ -16,13 +16,13 @@ public class CRUDRepository<TEntity, TId> : CRURepository<TEntity, TId>, ICRUDRe
     public virtual void Remove(IEnumerable<TEntity> entities)
         => Context.Set<TEntity>().RemoveRange(entities);
 
-    public virtual Task RemoveAsync(TEntity entity)
+    public virtual Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().Remove(entity);
         return Task.CompletedTask;
     }
 
-    public virtual Task RemoveAsync(IEnumerable<TEntity> entities)
+    public virtual Task RemoveAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         Context.Set<TEntity>().RemoveRange(entities);
         return Task.CompletedTask;

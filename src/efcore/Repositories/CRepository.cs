@@ -19,11 +19,11 @@ public class CRepository<TEntity, TId> : ICRepository<TEntity, TId> where TEntit
     public virtual void Add(IEnumerable<TEntity> entities)
         => Context.Set<TEntity>().AddRange(entities);
 
-    public virtual Task AddAsync(TEntity entity)
-        => Context.Set<TEntity>().AddAsync(entity).AsTask();
+    public virtual Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        => Context.Set<TEntity>().AddAsync(entity, cancellationToken).AsTask();
 
-    public virtual Task AddAsync(IEnumerable<TEntity> entities)
-        => Context.Set<TEntity>().AddRangeAsync(entities);
+    public virtual Task AddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        => Context.Set<TEntity>().AddRangeAsync(entities, cancellationToken);
 
     public virtual int SaveChanges()
         => Context.SaveChanges();

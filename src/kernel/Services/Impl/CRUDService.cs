@@ -4,7 +4,7 @@ using FastCrud.Kernel.Repositories;
 
 namespace FastCrud.Kernel.Services;
 
-public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEntity, TId>, IRUService<TEntity, TId>, IRDService<TEntity, TId> where TEntity : class, IDeletableEntity<TId>
+public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEntity, TId>, IRService<TEntity, TId>, IUService<TEntity, TId>, IDService<TEntity, TId>, ICRService<TEntity, TId>, IRUService<TEntity, TId>, IRDService<TEntity, TId> where TEntity : class, IDeletableEntity<TId>
 {
     public CRUDService(ICRUDRepository<TEntity, TId> repository) : base(repository)
     {
@@ -81,26 +81,26 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
     public virtual void Update(IEnumerable<TEntity> entities)
         => ((IRURepository<TEntity, TId>)Repository).Update(entities);
 
-    public virtual async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request)
+    public virtual async Task<TResponse?> UpdateAsync<TResponse, TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
-        var entity = await Repository.FindAsync(request.Id);
+        var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
         request.UpdateEntity(entity);
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         var res = new TResponse();
         res.Set(entity);
         return res;
     }
 
-    public virtual async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request)
+    public virtual async Task<TResponse[]?> UpdateAsync<TResponse, TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default)
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
             return null;
         var res = new TResponse[entities.Length];
@@ -112,24 +112,24 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
             res[i] = new TResponse();
             res[i].Set(entities[i]);
         }
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate, cancellationToken);
         return res;
     }
 
-    public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
-        var entity = await Repository.FindAsync(request.Id);
+        var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
         request.UpdateEntity(entity);
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         return entity;
     }
 
-    public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
+    public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
         var ids = request.Select(x => x.Id).ToArray();
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
             return null;
         var toUpdate = new List<TEntity>();
@@ -138,15 +138,15 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
             request.First(x => x.Id!.Equals(entities[i].Id)).UpdateEntity(entities[i]);
             toUpdate.Add(entities[i]);
         }
-        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate);
+        await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate, cancellationToken);
         return entities;
     }
 
-    public virtual Task UpdateAsync(TEntity entity)
-        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity);
+    public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
 
-    public virtual Task UpdateAsync(IEnumerable<TEntity> entities)
-        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities);
+    public virtual Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
 
     public virtual void Delete(TId id)
     {
@@ -183,39 +183,41 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
         ((IDRepository<TEntity, TId>)Repository).Update(entities);
     }
 
-    public virtual async Task DeleteAsync(TId id)
+    public virtual async Task DeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
             entity.DeletedAt = DateTimeOffset.UtcNow;
-            await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entity);
+            await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task DeleteAsync(IEnumerable<TId> ids)
+    public virtual async Task DeleteAsync(IEnumerable<TId> ids, CancellationToken cancellationToken = default)
     {
-        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue);
+        var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue, cancellationToken);
+        var now = DateTimeOffset.UtcNow;
         foreach (var entity in entities)
         {
-            entity.DeletedAt = DateTimeOffset.UtcNow;
+            entity.DeletedAt = now;
         }
-        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entities);
+        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(TEntity entity)
+    public virtual async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         entity.DeletedAt = DateTimeOffset.UtcNow;
-        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entity);
+        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(IEnumerable<TEntity> entities)
+    public virtual async Task DeleteAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
+        var now = DateTimeOffset.UtcNow;
         foreach (var entity in entities)
         {
-            entity.DeletedAt = DateTimeOffset.UtcNow;
+            entity.DeletedAt = now;
         }
-        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entities);
+        await ((IDRepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
     }
 
     public virtual void Remove(TId id)
@@ -239,26 +241,26 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
     public virtual void Remove(IEnumerable<TEntity> entities)
         => ((IDRepository<TEntity, TId>)Repository).Remove(entities);
 
-    public virtual async Task RemoveAsync(TId id)
+    public virtual async Task RemoveAsync(TId id, CancellationToken cancellationToken = default)
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
-            await ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+            await ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task RemoveAsync(IEnumerable<TId> ids)
+    public virtual async Task RemoveAsync(IEnumerable<TId> ids, CancellationToken cancellationToken = default)
     {
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id!) && x.DeletedAt == null, 0, int.MaxValue);
-        await ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entities);
+        await ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entities, cancellationToken);
     }
 
-    public virtual Task RemoveAsync(TEntity entity)
-        => ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+    public virtual Task RemoveAsync(TEntity entity, CancellationToken cancellationToken = default)
+        => ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
 
-    public virtual Task RemoveAsync(IEnumerable<TEntity> entities)
-        => ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entities);
+    public virtual Task RemoveAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        => ((IDRepository<TEntity, TId>)Repository).RemoveAsync(entities, cancellationToken);
 
     public virtual void Remove<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
@@ -278,21 +280,21 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICRService<TEn
         Delete(entity);
     }
 
-    public virtual async Task RemoveAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    public virtual async Task RemoveAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
-            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity);
+            await ((IRDRepository<TEntity, TId>)Repository).RemoveAsync(entity, cancellationToken);
         }
     }
 
-    public virtual async Task DeleteAsync<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
+    public virtual async Task DeleteAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
-        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity is null)
             return;
         request.DeleteEntity(entity);
-        await DeleteAsync(entity);
+        await DeleteAsync(entity, cancellationToken);
     }
 }
