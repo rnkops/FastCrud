@@ -27,6 +27,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
         ((IRURepository<TEntity, TId>)Repository).Update(entity);
         var res = new TResponse();
         res.Set(entity);
+        OnBeforeResponseReturned(res);
         return res;
     }
 
@@ -48,6 +49,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
             res[i].Set(entities[i]);
         }
         ((IRURepository<TEntity, TId>)Repository).Update(toUpdate);
+        OnBeforeResponseReturned(res);
         return res;
     }
 
@@ -92,6 +94,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
         await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entity, cancellationToken);
         var res = new TResponse();
         res.Set(entity);
+        await OnBeforeResponseReturnedAsync(res, cancellationToken);
         return res;
     }
 
@@ -113,6 +116,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
             res[i].Set(entities[i]);
         }
         await ((IRURepository<TEntity, TId>)Repository).UpdateAsync(toUpdate, cancellationToken);
+        await OnBeforeResponseReturnedAsync(res, cancellationToken);
         return res;
     }
 
