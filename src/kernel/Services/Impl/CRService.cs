@@ -18,6 +18,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
         ((ICRepository<TEntity, TId>)Repository).Add(entity);
         var response = new TResponse();
         response.Set(entity);
+        OnBeforeResponseReturned(response);
         return response;
     }
 
@@ -33,6 +34,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
             res[i] = new TResponse();
             res[i].Set(entities[i]);
         }
+        OnBeforeResponseReturned(res);
         return res;
     }
 
@@ -64,6 +66,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
         await ((ICRepository<TEntity, TId>)Repository).AddAsync(entity, cancellationToken);
         var response = new TResponse();
         response.Set(entity);
+        await OnBeforeResponseReturnedAsync(response, cancellationToken);
         return response;
     }
 
@@ -79,6 +82,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
             res[i] = new TResponse();
             res[i].Set(entities[i]);
         }
+        await OnBeforeResponseReturnedAsync(res, cancellationToken);
         return res;
     }
 
