@@ -20,6 +20,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.Find(request.Id);
         if (entity is null)
             return null;
@@ -35,6 +42,16 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
         if (entities.Length != ids.Length)
@@ -55,6 +72,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual TEntity? Update<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.Find(request.Id);
         if (entity is null)
             return null;
@@ -65,6 +89,16 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual TEntity[]? Update<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
         if (entities.Length != ids.Length)
@@ -87,6 +121,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
@@ -102,6 +143,16 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
@@ -122,6 +173,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
@@ -132,6 +190,16 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
@@ -268,6 +336,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual void Remove<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity != null)
         {
@@ -277,6 +352,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual void Delete<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity is null)
             return;
@@ -286,6 +368,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual async Task RemoveAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
@@ -295,6 +384,13 @@ public class CRUDService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnt
 
     public virtual async Task DeleteAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity is null)
             return;

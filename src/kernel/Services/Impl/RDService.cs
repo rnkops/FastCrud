@@ -128,6 +128,13 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual void Remove<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity != null)
         {
@@ -137,6 +144,13 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual void Delete<TRequest>(TRequest request) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity is null)
             return;
@@ -146,6 +160,13 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual async Task RemoveAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
         {
@@ -155,6 +176,13 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual async Task DeleteAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseDeleteRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity is null)
             return;
@@ -167,4 +195,15 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => ((IRDRepository<TEntity, TId>)Repository).SaveChangesAsync(cancellationToken);
+
+
+    protected virtual Task<bool> IsValidAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        return Task.FromResult(true);
+    }
+
+    protected virtual bool IsValid<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        return true;
+    }
 }

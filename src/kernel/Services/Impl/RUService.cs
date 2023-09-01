@@ -20,6 +20,13 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.Find(request.Id);
         if (entity is null)
             return null;
@@ -34,6 +41,16 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
         if (entities.Length != ids.Length)
@@ -53,6 +70,13 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual TEntity? Update<TRequest>(TRequest request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !IsValid(validatable))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = Repository.Find(request.Id);
         if (entity is null)
             return null;
@@ -63,6 +87,16 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual TEntity[]? Update<TRequest>(IEnumerable<TRequest> request) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !IsValid(validatable))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
         if (entities.Length != ids.Length)
@@ -85,6 +119,13 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
@@ -99,6 +140,16 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
         where TResponse : BaseResponse<TEntity, TId>, new()
         where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
@@ -118,6 +169,13 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual async Task<TEntity?> UpdateAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (request is IValidatable validatable)
+        {
+            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+            {
+                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+            }
+        }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
             return null;
@@ -128,6 +186,16 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual async Task<TEntity[]?> UpdateAsync<TRequest>(IEnumerable<TRequest> request, CancellationToken cancellationToken = default) where TRequest : BaseUpdateRequest<TEntity, TId>
     {
+        if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
+        {
+            foreach (var validatable in request.Cast<IValidatable>())
+            {
+                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
+                {
+                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
+                }
+            }
+        }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
         if (entities.Length != ids.Length)
@@ -147,4 +215,14 @@ public class RUService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
 
     public virtual Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
         => ((IRURepository<TEntity, TId>)Repository).UpdateAsync(entities, cancellationToken);
+
+    protected virtual Task<bool> IsValidAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        return Task.FromResult(true);
+    }
+
+    protected virtual bool IsValid<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        return true;
+    }
 }
