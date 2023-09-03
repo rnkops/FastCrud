@@ -130,10 +130,7 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity != null)
@@ -146,10 +143,7 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = Repository.FirstOrDefault(x => x.Id!.Equals(request.Id) && x.DeletedAt == null);
         if (entity is null)
@@ -162,10 +156,7 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity != null)
@@ -178,10 +169,7 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = await Repository.FirstOrDefaultAsync(x => x.Id!.Equals(request.Id) && x.DeletedAt == null, cancellationToken);
         if (entity is null)
@@ -196,14 +184,31 @@ public class RDService<TEntity, TId> : RService<TEntity, TId>, IRService<TEntity
     public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => ((IRDRepository<TEntity, TId>)Repository).SaveChangesAsync(cancellationToken);
 
-
-    protected virtual Task<bool> IsValidAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    protected virtual Task ValidateAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
     {
-        return Task.FromResult(true);
+        validatable.Validate();
+        return Task.CompletedTask;
     }
 
-    protected virtual bool IsValid<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    protected virtual void Validate<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
     {
-        return true;
+        validatable.Validate();
+    }
+
+    protected virtual Task ValidateAsync<TValidatable>(IEnumerable<TValidatable> validatables, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        foreach (var validatable in validatables)
+        {
+            validatable.Validate();
+        }
+        return Task.CompletedTask;
+    }
+
+    protected virtual void Validate<TValidatable>(IEnumerable<TValidatable> validatables, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        foreach (var validatable in validatables)
+        {
+            validatable.Validate();
+        }
     }
 }

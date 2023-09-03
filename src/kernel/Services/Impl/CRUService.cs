@@ -22,10 +22,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = Repository.Find(request.Id);
         if (entity is null)
@@ -44,13 +41,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !IsValid(validatable))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            Validate(request.Cast<IValidatable>());
         }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
@@ -74,10 +65,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = Repository.Find(request.Id);
         if (entity is null)
@@ -91,13 +79,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !IsValid(validatable))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            Validate(request.Cast<IValidatable>());
         }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = Repository.GetFiltered(x => ids.Contains(x.Id), 0, ids.Length);
@@ -123,10 +105,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
@@ -145,13 +124,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            await ValidateAsync(request.Cast<IValidatable>(), cancellationToken);
         }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);
@@ -175,10 +148,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = await Repository.FindAsync(request.Id, cancellationToken);
         if (entity is null)
@@ -192,13 +162,7 @@ public class CRUService<TEntity, TId> : CRService<TEntity, TId>, ICService<TEnti
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            await ValidateAsync(request.Cast<IValidatable>(), cancellationToken);
         }
         var ids = request.Select(x => x.Id).ToArray();
         var entities = await Repository.GetFilteredAsync(x => ids.Contains(x.Id), 0, ids.Length, cancellationToken);

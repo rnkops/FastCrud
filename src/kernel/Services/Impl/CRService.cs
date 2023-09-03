@@ -16,10 +16,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = request.ToEntity();
         ((ICRepository<TEntity, TId>)Repository).Add(entity);
@@ -35,13 +32,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !IsValid(validatable))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            Validate(request.Cast<IValidatable>());
         }
         var entities = request.Select(x => x.ToEntity()).ToArray();
         ((ICRepository<TEntity, TId>)Repository).Add(entities);
@@ -59,10 +50,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !IsValid(validatable))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            Validate(validatable);
         }
         var entity = request.ToEntity();
         ((ICRepository<TEntity, TId>)Repository).Add(entity);
@@ -73,13 +61,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !IsValid(validatable))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            Validate(request.Cast<IValidatable>());
         }
         var entities = request.Select(x => x.ToEntity()).ToArray();
         ((ICRepository<TEntity, TId>)Repository).Add(entities);
@@ -98,10 +80,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = request.ToEntity();
         await ((ICRepository<TEntity, TId>)Repository).AddAsync(entity, cancellationToken);
@@ -117,13 +96,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            await ValidateAsync(request.Cast<IValidatable>(), cancellationToken);
         }
         var entities = request.Select(x => x.ToEntity()).ToArray();
         await ((ICRepository<TEntity, TId>)Repository).AddAsync(entities, cancellationToken);
@@ -141,10 +114,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (request is IValidatable validatable)
         {
-            if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-            {
-                throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-            }
+            await ValidateAsync(validatable, cancellationToken);
         }
         var entity = request.ToEntity();
         await ((ICRepository<TEntity, TId>)Repository).AddAsync(entity, cancellationToken);
@@ -155,13 +125,7 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     {
         if (typeof(IValidatable).IsAssignableFrom(typeof(TRequest)))
         {
-            foreach (var validatable in request.Cast<IValidatable>())
-            {
-                if (!validatable.IsValid() || !await IsValidAsync(validatable, cancellationToken))
-                {
-                    throw new InvalidDataException($"Invalid data: {validatable.GetType().Name}");
-                }
-            }
+            await ValidateAsync(request.Cast<IValidatable>(), cancellationToken);
         }
         var entities = request.Select(x => x.ToEntity()).ToArray();
         await ((ICRepository<TEntity, TId>)Repository).AddAsync(entities, cancellationToken);
@@ -180,13 +144,31 @@ public class CRService<TEntity, TId> : RService<TEntity, TId>, ICService<TEntity
     public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         => ((ICRepository<TEntity, TId>)Repository).SaveChangesAsync(cancellationToken);
 
-    protected virtual Task<bool> IsValidAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    protected virtual Task ValidateAsync<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
     {
-        return Task.FromResult(true);
+        validatable.Validate();
+        return Task.CompletedTask;
     }
 
-    protected virtual bool IsValid<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    protected virtual void Validate<TValidatable>(TValidatable validatable, CancellationToken cancellationToken = default) where TValidatable : IValidatable
     {
-        return true;
+        validatable.Validate();
+    }
+
+    protected virtual Task ValidateAsync<TValidatable>(IEnumerable<TValidatable> validatables, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        foreach (var validatable in validatables)
+        {
+            validatable.Validate();
+        }
+        return Task.CompletedTask;
+    }
+
+    protected virtual void Validate<TValidatable>(IEnumerable<TValidatable> validatables, CancellationToken cancellationToken = default) where TValidatable : IValidatable
+    {
+        foreach (var validatable in validatables)
+        {
+            validatable.Validate();
+        }
     }
 }
